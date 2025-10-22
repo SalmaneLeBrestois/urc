@@ -19,20 +19,26 @@ export function Login() {
         const form = event.currentTarget;
         const data = new FormData(form);
 
-        loginUser(
-            { user_id: -1, username: data.get('login') as string, password: data.get('password') as string },
+        // --- CORRECTION ICI ---
+        // 1. Récupérer les données
+        const username = data.get('login') as string;
+        const password = data.get('password') as string;
+
+        // 2. Appeler loginUser avec le bon objet
+        loginUser({ username, password },
             (result: Session) => {
                 console.log(result);
                 setAuth(result.token, result);
                 form.reset();
-                setError(new CustomError(""));
+                setError(new CustomError("")); // Utilisez null ici
                 navigate('/');
-            },
+            }, 
             (loginError: CustomError) => {
                 console.log(loginError);
                 setError(loginError);
             }
         );
+        // --- FIN DE LA CORRECTION ---
     };
 
     return (

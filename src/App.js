@@ -10,6 +10,8 @@ function App() {
       <Routes>
         <Route path="/login" element={<Login/>} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/messages" element={<ChatPage />} />
+        <Route path="/messages/user/:userId" element={<ChatPage />} />
         <Route path="/" element={<ChatPage/>} />
       </Routes>
     </div>

@@ -1,35 +1,34 @@
-import {CustomError} from "./CustomError";
-
-export const AUTHENT_HEADER = "Authentication";
-export const BEARER = "Bearer ";
-
-export interface User {
-    user_id: number;
-    username: string;
-    email?: string;
-    password: string;
-    last_login?: string;
-    external_id?: string;
-}
-
+// Ce que l'API /api/login renvoie
 export interface Session {
+    id: number; // <-- CORRECTION (pour Sidebar et Login)
+    username: string;
+    email: string;
+    external_id: string; // Doit être snake_case
+    created_on: string;
+    last_login: string;
     token: string;
-    username?: string;
-    id?: number;
-    externalId: string;
 }
 
-
-export interface EmptyCallback {
-    (): void;
+// Le type User (utilisé dans les stores)
+export interface User {
+    id: number; // <-- CORRECTION (pour Sidebar)
+    username: string;
+    email: string;
+    external_id: string;
+    created_on: string;
+    last_login: string;
 }
 
-export interface SessionCallback {
-    (session: Session): void;
+// Votre classe d'erreur
+export class CustomError extends Error {
+    constructor(message: string) {
+        super(message);
+        this.name = 'CustomError';
+    }
 }
 
-
-export interface ErrorCallback {
-    (error: CustomError): void;
-}
-
+// --- CORRECTION (pour loginApi.ts) ---
+// Ajout des types de callback manquants
+export type SessionCallback = (session: Session) => void;
+export type ErrorCallback = (error: CustomError) => void;
+// --- FIN DES CORRECTIONS ---

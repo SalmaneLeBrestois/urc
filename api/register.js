@@ -1,4 +1,3 @@
-// Contenu de api/register.js
 import { db } from '@vercel/postgres';
 import crypto from 'crypto';
 
@@ -7,7 +6,6 @@ export default async function handler(request, response) {
         return response.status(405).json({ error: 'Method Not Allowed' });
     }
     
-    // On force la lecture en JSON car request.body est déjà parsé
     const { username, email, password } = request.body;
 
     if (!username || !email || !password) {
@@ -22,14 +20,17 @@ export default async function handler(request, response) {
         `;
 
         if (existingUsers.length > 0) {
-            await client.end(); // Libérer le client
+            await client.end();
             return response.status(409).json({ error: "Ce nom d'utilisateur ou cet email est déjà pris." });
         }
 
+        // --- CORRECTION ---
+        // On utilise 'username + password' pour être cohérent avec l'API de login
         const hash = crypto
             .createHash('sha256')
-            .update(password + username)
+            .update(username + password) // <-- CORRIGÉ
             .digest('base64');
+        // --- FIN CORRECTION ---
 
         const externalId = crypto.randomUUID().toString();
 
@@ -38,7 +39,7 @@ export default async function handler(request, response) {
             VALUES (${username}, ${email}, ${hash}, ${externalId}, NOW(), NOW())
         `;
         
-        await client.end(); // Libérer le client
+        await client.end();
         return response.status(201).json({ message: "Utilisateur créé avec succès." });
 
     } catch (error) {
