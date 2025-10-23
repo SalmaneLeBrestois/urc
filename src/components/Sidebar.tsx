@@ -40,15 +40,25 @@ export function Sidebar() {
     // These dependencies are now stable and will not cause a loop
     }, [token, setUsers, navigate]); 
 
-    const handleUserSelect = (userId: string) => {
+    const handleUserSelect = (userId: number) => { 
+    // --- FIN CORRECTION ---
+        // Stocker dans le store
         selectConversation(`user_${userId}`); 
+        // Modifier l'URL
         navigate(`/messages/user/${userId}`);
     };
 
-    const formatLastLogin = (dateString: string) => {
-        if (!dateString) return "Jamais connecté";
+    const formatLastLogin = (dateString: string | null): string => {
+    if (!dateString) return "Jamais connecté"; // Gère null ou ""
+    try {
         const date = new Date(dateString);
+        if (isNaN(date.getTime())) { // Vérifie validité
+             return "Date invalide";
+        }
         return `Vu le ${date.toLocaleDateString()} à ${date.toLocaleTimeString()}`;
+    } catch (e) {
+        return "Erreur date";
+    }
     };
 
     if (!currentUser) return <CircularProgress />; 

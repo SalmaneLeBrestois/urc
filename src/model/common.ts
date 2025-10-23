@@ -27,6 +27,15 @@ export class CustomError extends Error {
     }
 }
 
+// ... (vos interfaces User, Session, CustomError...)
+
+// L'objet Message tel qu'il est stocké dans Redis
+export interface Message {
+    senderId: number | string; // (user.id peut être un nombre)
+    content: string;
+    timestamp: number;
+}
+
 // --- CORRECTION (pour loginApi.ts) ---
 // Ajout des types de callback manquants
 export type SessionCallback = (session: Session) => void;

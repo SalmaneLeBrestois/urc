@@ -1,58 +1,70 @@
 import { getConnecterUser, triggerNotConnected } from "../lib/session";
 import { Redis } from '@upstash/redis';
-// const PushNotifications = require("@pusher/push-notifications-server");
 
-// 1. Initialize Redis
 const redis = Redis.fromEnv();
 
-// Helper function to create a sorted conversation key
 function getConversationKey(userId1, userId2) {
-    const ids = [userId1, userId2].sort();
+    const ids = [String(userId1), String(userId2)].sort();
     return `chat:${ids[0]}:${ids[1]}`;
 }
 
 export default async (request, response) => {
+    // Check method FIRST
+    if (request.method !== 'POST') {
+        return response.status(405).json({ error: 'Method Not Allowed' });
+    }
+
     try {
         const user = await getConnecterUser(request);
         if (user === undefined || user === null) {
             console.log("Not connected");
             triggerNotConnected(response);
-            return; // Important: stop execution
+            return;
         }
 
-        const message = await request.body;
+        // --- CORRECTION: Explicitly get the body ---
+        // Vercel might provide it directly, or we might need to parse.
+        // This handles both cases more robustly.
+        let messagePayload;
+        if (typeof request.body === 'string') {
+            try {
+                // If it's a string, try parsing JSON
+                messagePayload = JSON.parse(request.body);
+            } catch (e) {
+                return response.status(400).json({ error: 'Invalid JSON body' });
+            }
+        } else if (typeof request.body === 'object' && request.body !== null) {
+            // If it's already an object, use it directly
+            messagePayload = request.body;
+        } else {
+             return response.status(400).json({ error: 'Invalid or missing request body' });
+        }
+        // --- FIN CORRECTION ---
 
-        // --- CORRECTION: TODO Completed ---
-        
-        // 2. Validate message payload (basic)
-        if (!message.targetUserId || !message.content) {
+
+        if (!messagePayload.targetUserId || !messagePayload.content) {
             return response.status(400).json({ error: 'Missing targetUserId or content' });
         }
 
-        // 3. Create the message object to be stored
         const messageToStore = {
-            senderId: user.id, // ID of the user sending the message
-            content: message.content,
+            senderId: user.id,
+            content: messagePayload.content,
             timestamp: Date.now(),
         };
 
-        // 4. Generate the conversation key
-        const conversationKey = getConversationKey(user.id, message.targetUserId);
+        const conversationKey = getConversationKey(user.id, messagePayload.targetUserId);
 
-        // 5. Push the message to the Redis list
         await redis.lpush(conversationKey, JSON.stringify(messageToStore));
-        
-        // 6. Set the conversation to expire in 24 hours (86400 seconds)
-        // This ensures the cache doesn't grow indefinitely
         await redis.expire(conversationKey, 86400);
 
-        // TODO: Add Pusher notification logic here (next step in TP)
+        // (Pusher logic will go here)
 
-        // --- FIN CORRECTION ---
+        response.status(200).json(messageToStore); // Return the created message
 
-        response.status(200).send("OK");
     } catch (error) {
-        console.log(error);
-        response.status(500).json(error);
+        console.log("Erreur dans api/message.js:", error);
+        // Send back a more informative error if possible
+        const errorMessage = error instanceof Error ? error.message : "Internal server error";
+        response.status(500).json({ error: errorMessage });
     }
 };

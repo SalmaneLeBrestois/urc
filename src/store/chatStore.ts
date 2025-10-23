@@ -1,15 +1,14 @@
 import { create } from 'zustand';
-// Nous aurons besoin de ces types, vous pouvez les créer dans src/model/common.ts
-// import { User, Message } from '../model/common';
+// 1. Importer les vrais types
+import { Message, User } from '../model/common'; 
 
-// Pour l'instant, utilisons 'any' pour la simplicité
-type User = any;
-type Message = any;
+// 2. SUPPRIMER CETTE LIGNE
+// type User = any; 
 
 interface ChatState {
-  users: User[];
+  users: User[]; // <-- 3. Utiliser le vrai type
   messages: Message[];
-  selectedConversation: string | null; // ex: "user_ID_123" ou "room_ID_456"
+  selectedConversation: string | null;
   
   setUsers: (users: User[]) => void;
   selectConversation: (id: string | null) => void;
@@ -26,7 +25,10 @@ export const useChatStore = create<ChatState>((set) => ({
   // --- ACTIONS ---
   setUsers: (users) => set({ users: users }),
   
-  selectConversation: (id) => set({ selectedConversation: id, messages: [] }), // Vide les messages lors du changement
+  selectConversation: (id) => set({ 
+    selectedConversation: id, 
+    messages: [] 
+  }),
   
   setMessages: (messages) => set({ messages: messages }),
   
