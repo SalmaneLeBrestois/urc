@@ -1,8 +1,6 @@
-import {getConnecterUser, triggerNotConnected} from "../lib/session";
+import {getConnecterUser, triggerNotConnected} from "../lib/session.js";
 
-const PushNotifications = require("@pusher/push-notifications-server");
-
-
+import PushNotifications from "@pusher/push-notifications-server";
 export default async (req, res) => {
 
     const userIDInQueryParam = req.query["user_id"];
@@ -15,9 +13,9 @@ export default async (req, res) => {
     }
 
     console.log("Using push instance : " + process.env.PUSHER_INSTANCE_ID);
-    const beamsClient = new PushNotifications({
-        instanceId: process.env.PUSHER_INSTANCE_ID,
-        secretKey: process.env.PUSHER_SECRET_KEY,
+    const beamsClient = new PushNotifications({ // Check if 'new' is needed
+    instanceId: process.env.PUSHER_INSTANCE_ID,
+    secretKey: process.env.PUSHER_SECRET_KEY,
     });
 
     const beamsToken = beamsClient.generateToken(user.externalId);

@@ -1,25 +1,22 @@
-// Ce que l'API /api/login renvoie
-export interface Session {
-    id: number; // <-- CORRECTION (pour Sidebar et Login)
-    username: string;
-    email: string;
-    external_id: string; // Doit être snake_case
-    created_on: string;
-    last_login: string;
-    token: string;
-}
-
-// Le type User (utilisé dans les stores)
+// Ce que l'API /api/login renvoie et ce qui est stocké dans le store
 export interface User {
-    id: number; // <-- CORRECTION (pour Sidebar)
+    id: number;
     username: string;
-    email: string;
-    external_id: string;
-    created_on: string;
-    last_login: string;
+    email?: string; // Email might not always be present (e.g., from /api/users)
+    // --- CORRECTION ---
+    externalId: string; // Use camelCase to match login API response and Pusher usage
+    // --- FIN CORRECTION ---
+    created_on?: string; // Optional, might not always be present
+    last_login?: string | null; // Optional, might be null or string from /api/users
 }
 
-// Votre classe d'erreur
+// Session can extend User, adding the token
+export interface Session extends User {
+    token: string;
+    // external_id is no longer needed if User has externalId correctly
+}
+
+// Votre classe d'erreur (Correct)
 export class CustomError extends Error {
     constructor(message: string) {
         super(message);
@@ -27,17 +24,13 @@ export class CustomError extends Error {
     }
 }
 
-// ... (vos interfaces User, Session, CustomError...)
-
-// L'objet Message tel qu'il est stocké dans Redis
+// L'objet Message (Correct)
 export interface Message {
-    senderId: number | string; // (user.id peut être un nombre)
+    senderId: number | string;
     content: string;
     timestamp: number;
 }
 
-// --- CORRECTION (pour loginApi.ts) ---
-// Ajout des types de callback manquants
+// Types de callback (Correct)
 export type SessionCallback = (session: Session) => void;
 export type ErrorCallback = (error: CustomError) => void;
-// --- FIN DES CORRECTIONS ---

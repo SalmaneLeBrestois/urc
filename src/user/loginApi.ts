@@ -21,8 +21,7 @@ export function loginUser(
                 sessionStorage.setItem('token', session.token);
                 
                 // 4. CORRECTION de la faute de frappe (snake_case)
-                sessionStorage.setItem('externalId', session.external_id); 
-                
+                sessionStorage.setItem('externalId', session.externalId);
                 sessionStorage.setItem('username', session.username || "");
                 onResult(session)
             } else {

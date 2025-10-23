@@ -48,8 +48,7 @@ export function Sidebar() {
         navigate(`/messages/user/${userId}`);
     };
 
-    const formatLastLogin = (dateString: string | null): string => {
-    if (!dateString) return "Jamais connecté"; // Gère null ou ""
+const formatLastLogin = (dateString: string | null | undefined): string => {    if (!dateString) return "Jamais connecté"; // Gère null ou ""
     try {
         const date = new Date(dateString);
         if (isNaN(date.getTime())) { // Vérifie validité
